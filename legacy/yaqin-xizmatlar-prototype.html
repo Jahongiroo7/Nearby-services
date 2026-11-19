@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yaqin xizmatlar</title>
+<style>
+:root{
+  --bg:#f4f5f7; --surface:#fff; --surface-2:#f1f3f6; --text:#0a1020; --muted:#4a5568; --faint:#7a8599;
+  --border:#e2e5ea; --accent:#1d6ef2; --accent-soft:rgba(29,110,242,.12); --on-accent:#fff;
+  --ok:#166534; --ok-soft:#dcf5e5; --bad:#be123c; --bad-soft:#ffe8ee;
+  --land:#eceef2; --water:#a9c9ea; --road:#fff; --road-edge:#d3d8e1; --park:#cfe4cb; --label:#6f7b90; --ring:#fff;
+  --shadow:0 1px 2px rgba(15,27,45,.06),0 8px 24px -8px rgba(15,27,45,.18);
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#03070f; --surface:#0b1426; --surface-2:#0f1b33; --text:#fff; --muted:#a9b2c3; --faint:#7d89a3;
+  --border:#1d2d52; --accent:#3a78ef; --accent-soft:rgba(79,140,255,.2);
+  --ok:#4ade80; --ok-soft:rgba(74,222,128,.14); --bad:#fb7185; --bad-soft:rgba(251,113,133,.14);
+  --land:#0c1730; --water:#1c4270; --road:#2a3d68; --road-edge:#081022; --park:#123321; --label:#7584a2; --ring:#e8ecf4;
+  --shadow:0 8px 24px -8px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme=dark]{
+  --bg:#03070f; --surface:#0b1426; --surface-2:#0f1b33; --text:#fff; --muted:#a9b2c3; --faint:#7d89a3;
+  --border:#1d2d52; --accent:#3a78ef; --accent-soft:rgba(79,140,255,.2);
+  --ok:#4ade80; --ok-soft:rgba(74,222,128,.14); --bad:#fb7185; --bad-soft:rgba(251,113,133,.14);
+  --land:#0c1730; --water:#1c4270; --road:#2a3d68; --road-edge:#081022; --park:#123321; --label:#7584a2; --ring:#e8ecf4;
+  --shadow:0 8px 24px -8px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 var(--font);display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);z-index:3}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;white-space:nowrap}
+.mk{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:18px}
+.search{flex:1;max-width:520px;position:relative}
+.search input{width:100%;height:40px;padding:0 14px 0 38px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
+.search span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.iconbtn{height:40px;min-width:40px;padding:0 12px;border:1px solid var(--border);background:var(--surface);border-radius:12px;cursor:pointer}
+.iconbtn:hover{background:var(--surface-2)}
+
+main{flex:1;min-height:0;display:grid;grid-template-columns:380px 1fr}
+.panel{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.filters{padding:12px 14px;border-bottom:1px solid var(--border);display:grid;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:5px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;font-size:13px}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.row select{height:32px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);padding:0 8px}
+.row label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.count{padding:8px 14px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--border)}
+.list{flex:1;overflow:auto;margin:0;padding:0;list-style:none}
+.item{display:flex;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;background:none;border-inline:0;border-top:0;text-align:left}
+.item:hover,.item[aria-current=true]{background:var(--accent-soft)}
+.ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.item h3{margin:0;font-size:14.5px}
+.meta{color:var(--muted);font-size:12.5px;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:600}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.bad{background:var(--bad-soft);color:var(--bad)}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+
+.mapwrap{position:relative;min-height:0;background:var(--land);overflow:hidden}
+svg#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+svg#map.drag{cursor:grabbing}
+.pin{cursor:pointer}
+.pin circle{stroke:var(--ring);stroke-width:2.5}
+.pin.sel circle{stroke:var(--accent);stroke-width:4}
+.zoom{position:absolute;right:12px;top:12px;display:grid;gap:6px}
+.zoom button{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);font-size:18px;cursor:pointer}
+.hint{position:absolute;left:12px;bottom:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px;color:var(--muted);box-shadow:var(--shadow)}
+
+.detail{position:absolute;left:12px;right:12px;bottom:12px;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:38px}
+.detail h2{margin:0 0 2px;font-size:17px;padding-right:30px}
+.detail .x{position:absolute;right:10px;top:10px;border:0;background:var(--surface-2);width:28px;height:28px;border-radius:8px;cursor:pointer}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:12px 0;font-size:13.5px}
+.kv dt{color:var(--faint)} .kv dd{margin:0}
+.actions{display:flex;gap:8px}
+.btn{flex:1;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;line-height:36px;text-decoration:none;color:inherit;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+@media (max-width:760px){
+  main{grid-template-columns:1fr;grid-template-rows:42vh 1fr;display:grid}
+  .mapwrap{order:-1}
+  .panel{border-right:0;border-top:1px solid var(--border)}
+  .brand span.t{display:none}
+  .detail{max-width:none;margin-bottom:0}
+  .hint{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="mk">📍</div><span class="t">Yaqin xizmatlar</span></div>
+  <div class="search"><span>🔎</span><input id="q" type="search" placeholder="Nom, manzil yoki turi bo'yicha qidiring…" aria-label="Qidiruv"></div>
+  <button class="iconbtn" id="geo" title="Mening joylashuvim">🎯</button>
+  <button class="iconbtn" id="theme" title="Mavzuni almashtirish">🌓</button>
+</header>
+
+<main>
+  <section class="panel" aria-label="Natijalar">
+    <div class="filters">
+      <div class="chips" id="chips"></div>
+      <div class="row">
+        <label><input type="checkbox" id="openOnly"> Hozir ochiq</label>
+        <label>Saralash:
+          <select id="sort">
+            <option value="dist">Masofa</option>
+            <option value="rating">Reyting</option>
+            <option value="name">Nomi</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="count" id="count"></div>
+    <ul class="list" id="list"></ul>
+  </section>
+
+  <section class="mapwrap" aria-label="Xarita">
+    <svg id="map" viewBox="0 0 1000 760" role="img" aria-label="Toshkent sxematik xaritasi"></svg>
+    <div class="zoom">
+      <button id="zin" aria-label="Yaqinlashtirish">＋</button>
+      <button id="zout" aria-label="Uzoqlashtirish">－</button>
+      <button id="zreset" aria-label="Asl holat" style="font-size:14px">⟲</button>
+    </div>
+    <div class="hint">Xaritada bo'sh joyni bossangiz — «Men» nuqtasi ko'chadi</div>
+    <article class="detail" id="detail" hidden></article>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ---------- Ma'lumotlar (namuna; koordinatalar taxminiy) ---------- */
+const CATS = {
+  pharmacy:{n:"Dorixona",   e:"💊", c:"#16a34a"},
+  hospital:{n:"Shifoxona",  e:"🏥", c:"#dc2626"},
+  bank:    {n:"Bank/ATM",   e:"🏦", c:"#2563eb"},
+  food:    {n:"Restoran",   e:"🍽️", c:"#ea580c"},
+  cafe:    {n:"Kafe",       e:"☕", c:"#a16207"},
+  fuel:    {n:"Yoqilg'i",   e:"⛽", c:"#7c3aed"},
+  market:  {n:"Do'kon",     e:"🛒", c:"#0891b2"},
+  metro:   {n:"Metro",      e:"🚇", c:"#be185d"},
+};
+// [id, cat, nom, manzil, tel, lat, lng, ochilish, yopilish, reyting]  (24 soatlik: 0,24)
+const RAW = [
+ [1,"pharmacy","Shifo Plus dorixonasi","Amir Temur ko'chasi, 12","+998 71 200 11 22",41.3112,69.2797,0,24,4.6],
+ [2,"pharmacy","Salomat apteka","Chilonzor, 9-kvartal",       "+998 71 273 45 10",41.2755,69.2037,8,22,4.3],
+ [3,"pharmacy","Oila dorixonasi","Yunusobod, 4-kvartal",        "+998 71 255 77 01",41.3652,69.2889,8,23,4.5],
+ [4,"hospital","Markaziy klinika","Shahrisabz ko'chasi, 21",    "+998 71 233 00 03",41.3040,69.2680,0,24,4.2],
+ [5,"hospital","Shahar 2-sonli shifoxona","Mirzo Ulug'bek, 18", "+998 71 262 90 90",41.3380,69.3340,0,24,4.0],
+ [6,"hospital","Oilaviy poliklinika №5","Sergeli, Yangi hayot",  "+998 71 244 12 12",41.2290,69.2250,8,18,3.9],
+ [7,"bank","Milliy bank filiali","Amir Temur xiyoboni, 3",      "+998 71 233 55 55",41.3110,69.2840,9,17,4.1],
+ [8,"bank","Xalq bankomati","Chorsu bozori yonida",             "+998 71 244 00 00",41.3265,69.2355,0,24,4.0],
+ [9,"bank","Kapital bank ATM","Yunusobod, Amir Temur 107",      "+998 71 200 77 00",41.3560,69.2860,0,24,4.2],
+ [10,"food","Samarqand oshxonasi","Navoiy ko'chasi, 30",        "+998 71 241 20 20",41.3170,69.2700,10,23,4.7],
+ [11,"food","Plov markazi","Chilonzor, 7-kvartal",              "+998 71 276 00 66",41.2840,69.2160,9,22,4.8],
+ [12,"food","Sharq dasturxoni","Mirobod, Taraqqiyot, 14",       "+998 71 252 31 31",41.2990,69.2900,11,24,4.4],
+ [13,"cafe","Qahva Sharq","Mustaqillik maydoni yonida",         "+998 90 111 22 33",41.3135,69.2928,8,23,4.5],
+ [14,"cafe","Kitob & Kofe","Yunusobod, 11-kvartal",             "+998 93 555 10 10",41.3705,69.2970,9,22,4.6],
+ [15,"cafe","Bog'cha kafesi","Mirzo Ulug'bek, Buyuk Ipak Yo'li",  "+998 97 300 40 40",41.3320,69.3170,10,23,4.1],
+ [16,"fuel","Yoqilg'i shoxobchasi №1","Qatortol ko'chasi",       "+998 71 200 10 10",41.2980,69.2420,0,24,4.0],
+ [17,"fuel","Gaz-Benzin Yunusobod","Yunusobod, Ahmad Donish",   "+998 71 255 20 20",41.3500,69.2700,0,24,3.8],
+ [18,"fuel","Metan shoxobchasi","Chilonzor, Bunyodkor",         "+998 71 273 30 30",41.2650,69.1950,6,23,3.9],
+ [19,"market","Korzinka (Amir Temur)","Amir Temur ko'chasi, 60","+998 71 200 20 20",41.3200,69.2820,8,24,4.4],
+ [20,"market","Chorsu bozori","Eski shahar, Chorsu",            "+998 71 244 01 01",41.3290,69.2330,6,19,4.3],
+ [21,"market","Makro Chilonzor","Chilonzor, 12-kvartal",        "+998 71 273 90 90",41.2760,69.2230,8,23,4.2],
+ [22,"metro","Amir Temur xiyoboni","Metro stansiyasi",           "",41.3130,69.2790,5,24,4.5],
+ [23,"metro","Chorsu","Metro stansiyasi",                        "",41.3270,69.2370,5,24,4.4],
+ [24,"metro","Mirzo Ulug'bek","Metro stansiyasi",                "",41.3440,69.3150,5,24,4.3],
+];
+const DATA = RAW.map(([id,cat,name,addr,tel,lat,lng,o,c,r])=>({id,cat,name,addr,tel,lat,lng,o,c,r}));
+
+/* ---------- Yordamchilar ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const SVGNS = "http://www.w3.org/2000/svg";
+const el = (n,a={},p)=>{const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);p&&p.appendChild(e);return e};
+
+function km(a,b){ // haversine
+  const R=6371,t=x=>x*Math.PI/180;
+  const dl=t(b.lat-a.lat),dg=t(b.lng-a.lng);
+  const h=Math.sin(dl/2)**2+Math.cos(t(a.lat))*Math.cos(t(b.lat))*Math.sin(dg/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+const fmtKm = d => d<1 ? Math.round(d*1000)+" m" : d.toFixed(1)+" km";
+function isOpen(s,now=new Date()){
+  if(s.o===0&&s.c===24) return true;
+  const h=now.getHours()+now.getMinutes()/60;
+  return h>=s.o && h<s.c;
+}
+const hoursText = s => (s.o===0&&s.c===24) ? "24 soat" : `${String(s.o).padStart(2,"0")}:00 – ${String(s.c).padStart(2,"0")}:00`;
+
+/* ---------- Holat ---------- */
+const state = {
+  cats:new Set(), q:"", sort:"dist", openOnly:false, sel:null,
+  me:{lat:41.3111,lng:69.2797}, // Toshkent markazi
+};
+
+/* ---------- Xarita proyeksiyasi ---------- */
+const W=1000,H=760, B={n:41.39,s:41.21,w:69.16,e:69.37};
+const proj = (lat,lng)=>({
+  x:(lng-B.w)/(B.e-B.w)*W,
+  y:(B.n-lat)/(B.n-B.s)*H,
+});
+const unproj = (x,y)=>({lng:B.w+x/W*(B.e-B.w), lat:B.n-y/H*(B.n-B.s)});
+
+const svg=$("#map");
+const gBase=el("g",{},svg), gPins=el("g",{},svg), gMe=el("g",{},svg);
+
+function drawBase(){
+  el("rect",{x:-2000,y:-2000,width:5000,height:5000,fill:"var(--land)"},gBase);
+  // parklar
+  [[300,330,70,45],[620,210,90,55],[760,430,60,60],[220,560,80,50]].forEach(([x,y,w,h])=>
+    el("rect",{x,y,width:w,height:h,rx:18,fill:"var(--park)"},gBase));
+  // Anhor kanali
+  el("path",{d:"M-50 420 C 150 400, 260 330, 400 320 S 640 300, 740 220 S 900 120, 1060 80",
+    fill:"none",stroke:"var(--water)","stroke-width":16,"stroke-linecap":"round"},gBase);
+  // Halqa yo'li
+  el("ellipse",{cx:500,cy:390,rx:390,ry:300,fill:"none",stroke:"var(--road-edge)","stroke-width":13},gBase);
+  el("ellipse",{cx:500,cy:390,rx:390,ry:300,fill:"none",stroke:"var(--road)","stroke-width":9},gBase);
+  // asosiy ko'chalar
+  [
+    "M60 640 L940 150","M140 160 L860 640","M500 70 L500 710","M110 400 L900 380",
+    "M300 90 L420 700","M720 90 L600 700",
+  ].forEach(d=>{
+    el("path",{d,fill:"none",stroke:"var(--road-edge)","stroke-width":8,"stroke-linecap":"round"},gBase);
+    el("path",{d,fill:"none",stroke:"var(--road)","stroke-width":5,"stroke-linecap":"round"},gBase);
+  });
+  // nomlar
+  [["Markaz",490,368],["Chilonzor",230,500],["Yunusobod",520,150],["Mirzo Ulug'bek",780,330],["Sergeli",430,690],["Eski shahar",330,300],["Anhor",660,255]]
+    .forEach(([t,x,y])=>{
+      const tx=el("text",{x,y,"text-anchor":"middle","font-size":15,"font-weight":600,fill:"var(--label)",opacity:.9,"pointer-events":"none"},gBase);
+      tx.textContent=t;
+    });
+}
+
+function drawPins(list){
+  gPins.textContent="";
+  const sorted=[...list].sort((a,b)=>(a.id===state.sel)-(b.id===state.sel)); // tanlangan tepada
+  for(const s of sorted){
+    const p=proj(s.lat,s.lng), cat=CATS[s.cat];
+    const g=el("g",{class:"pin"+(s.id===state.sel?" sel":""),transform:`translate(${p.x} ${p.y})`,tabindex:0,role:"button","aria-label":s.name},gPins);
+    el("circle",{r:s.id===state.sel?17:14,fill:cat.c},g);
+    const t=el("text",{"text-anchor":"middle",y:5,"font-size":14,"pointer-events":"none"},g); t.textContent=cat.e;
+    g.addEventListener("click",e=>{e.stopPropagation();select(s.id,false)});
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(s.id,false)}});
+  }
+}
+function drawMe(){
+  gMe.textContent="";
+  const p=proj(state.me.lat,state.me.lng);
+  const g=el("g",{transform:`translate(${p.x} ${p.y})`,"pointer-events":"none"},gMe);
+  el("circle",{r:22,fill:"var(--accent)",opacity:.18},g);
+  el("circle",{r:8,fill:"var(--accent)",stroke:"#fff","stroke-width":3},g);
+  const t=el("text",{y:-16,"text-anchor":"middle","font-size":12,"font-weight":700,fill:"var(--accent)"},g); t.textContent="Men";
+}
+
+/* ---------- Filtr va ro'yxat ---------- */
+function filtered(){
+  const q=state.q.trim().toLowerCase();
+  const now=new Date();
+  const out=DATA.filter(s=>{
+    if(state.cats.size && !state.cats.has(s.cat)) return false;
+    if(state.openOnly && !isOpen(s,now)) return false;
+    if(q && !(`${s.name} ${s.addr} ${CATS[s.cat].n}`.toLowerCase().includes(q))) return false;
+    return true;
+  }).map(s=>({...s,d:km(state.me,s)}));
+  const by={dist:(a,b)=>a.d-b.d, rating:(a,b)=>b.r-a.r, name:(a,b)=>a.name.localeCompare(b.name,"uz")};
+  return out.sort(by[state.sort]);
+}
+
+function renderChips(){
+  $("#chips").innerHTML=Object.entries(CATS).map(([k,c])=>
+    `<button class="chip" data-k="${k}" aria-pressed="${state.cats.has(k)}">${c.e} ${esc(c.n)}</button>`).join("");
+}
+function render(){
+  const list=filtered();
+  $("#count").textContent=`${list.length} ta natija`;
+  $("#list").innerHTML = list.length ? list.map(s=>{
+    const c=CATS[s.cat], open=isOpen(s);
+    return `<li><button class="item" data-id="${s.id}" ${s.id===state.sel?'aria-current="true"':""}>
+      <div class="ico" style="background:${c.c}22">${c.e}</div>
+      <div><h3>${esc(s.name)}</h3>
+      <div class="meta"><span>${esc(c.n)}</span><span>· ${fmtKm(s.d)}</span><span>· ⭐ ${s.r.toFixed(1)}</span>
+      <span class="badge ${open?"ok":"bad"}">${open?"Ochiq":"Yopiq"}</span></div></div></button></li>`;
+  }).join("") : `<li class="empty">Hech narsa topilmadi.<br>Filtrlarni o'zgartirib ko'ring.</li>`;
+  drawPins(list); drawMe();
+  if(state.sel && !list.some(s=>s.id===state.sel)) closeDetail();
+}
+
+/* ---------- Tafsilot ---------- */
+function select(id,scrollList=true){
+  state.sel=id; renderDetail(); render();
+  const s=DATA.find(x=>x.id===id), p=proj(s.lat,s.lng);
+  centerOn(p.x,p.y);
+  if(scrollList) return;
+  $(`.item[data-id="${id}"]`)?.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function renderDetail(){
+  const s=DATA.find(x=>x.id===state.sel), box=$("#detail");
+  if(!s){box.hidden=true;return}
+  const c=CATS[s.cat], open=isOpen(s), d=km(state.me,s);
+  const gmaps=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+  box.hidden=false;
+  box.innerHTML=`<button class="x" aria-label="Yopish" id="dx">✕</button>
+    <h2>${c.e} ${esc(s.name)}</h2>
+    <div class="meta"><span>${esc(c.n)}</span><span class="badge ${open?"ok":"bad"}">${open?"Hozir ochiq":"Hozir yopiq"}</span></div>
+    <dl class="kv">
+      <dt>Manzil</dt><dd>${esc(s.addr)}</dd>
+      <dt>Masofa</dt><dd>${fmtKm(d)} (taxminan ${Math.max(1,Math.round(d/0.08))} daqiqa piyoda)</dd>
+      <dt>Ish vaqti</dt><dd>${hoursText(s)}</dd>
+      <dt>Reyting</dt><dd>⭐ ${s.r.toFixed(1)} / 5</dd>
+      ${s.tel?`<dt>Telefon</dt><dd>${esc(s.tel)}</dd>`:""}
+    </dl>
+    <div class="actions">
+      ${s.tel?`<a class="btn" href="tel:${s.tel.replace(/[^+\d]/g,"")}">📞 Qo'ng'iroq</a>`:""}
+      <a class="btn pri" href="${gmaps}" target="_blank" rel="noopener">🧭 Yo'nalish</a>
+    </div>`;
+  $("#dx").onclick=closeDetail;
+}
+function closeDetail(){state.sel=null;$("#detail").hidden=true;render()}
+
+/* ---------- Xarita: zoom/pan ---------- */
+let vb={x:0,y:0,w:W,h:H};
+const applyVB=()=>svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+function zoomAt(f,cx,cy){
+  const nw=clamp(vb.w*f,W/6,W*1.6), r=nw/vb.w, nh=vb.h*r;
+  vb={x:cx-(cx-vb.x)*r,y:cy-(cy-vb.y)*r,w:nw,h:nh}; applyVB();
+}
+function centerOn(x,y){ vb.x=x-vb.w/2; vb.y=y-vb.h/2; applyVB(); }
+function svgPoint(e){
+  const pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+$("#zin").onclick=()=>zoomAt(.7,vb.x+vb.w/2,vb.y+vb.h/2);
+$("#zout").onclick=()=>zoomAt(1/.7,vb.x+vb.w/2,vb.y+vb.h/2);
+$("#zreset").onclick=()=>{vb={x:0,y:0,w:W,h:H};applyVB()};
+svg.addEventListener("wheel",e=>{e.preventDefault();const p=svgPoint(e);zoomAt(e.deltaY<0?.85:1/.85,p.x,p.y)},{passive:false});
+
+let drag=null;
+svg.addEventListener("pointerdown",e=>{
+  drag={sx:e.clientX,sy:e.clientY,vx:vb.x,vy:vb.y,moved:false};
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener("pointermove",e=>{
+  if(!drag) return;
+  const dx=e.clientX-drag.sx, dy=e.clientY-drag.sy;
+  if(Math.abs(dx)+Math.abs(dy)>5){drag.moved=true;svg.classList.add("drag")}
+  if(!drag.moved) return;
+  const k=vb.w/svg.getBoundingClientRect().width;
+  vb.x=drag.vx-dx*k; vb.y=drag.vy-dy*k; applyVB();
+});
+svg.addEventListener("pointerup",e=>{
+  svg.classList.remove("drag");
+  if(drag && !drag.moved){ // bo'sh joy bosildi — "Men" nuqtasini ko'chirish
+    const p=svgPoint(e), g=unproj(p.x,p.y);
+    state.me={lat:g.lat,lng:g.lng}; render(); renderDetail();
+  }
+  drag=null;
+});
+
+/* ---------- Hodisalar ---------- */
+$("#chips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  const k=b.dataset.k; state.cats.has(k)?state.cats.delete(k):state.cats.add(k);
+  renderChips(); render();
+});
+$("#list").addEventListener("click",e=>{
+  const b=e.target.closest(".item"); if(b) select(+b.dataset.id,true);
+});
+$("#q").addEventListener("input",e=>{state.q=e.target.value;render()});
+$("#sort").addEventListener("change",e=>{state.sort=e.target.value;render()});
+$("#openOnly").addEventListener("change",e=>{state.openOnly=e.target.checked;render()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&state.sel)closeDetail()});
+
+$("#geo").addEventListener("click",()=>{
+  if(!navigator.geolocation){alert("Brauzer joylashuvni qo'llab-quvvatlamaydi");return}
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude:lat,longitude:lng}=pos.coords;
+    if(lat<B.s||lat>B.n||lng<B.w||lng>B.e){alert("Siz Toshkent xaritasidan tashqaridasiz — «Men» nuqtasini xaritada qo'lda belgilang.");return}
+    state.me={lat,lng}; render(); renderDetail();
+  },()=>alert("Joylashuvga ruxsat berilmadi. Xaritada qo'lda belgilashingiz mumkin."),{timeout:8000});
+});
+$("#theme").addEventListener("click",()=>{
+  const r=document.documentElement;
+  const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+  r.dataset.theme=dark?"light":"dark";
+});
+
+/* ---------- Boshlash ---------- */
+drawBase(); renderChips(); render();
+</script>
+</body>
+</html>
