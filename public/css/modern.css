@@ -1,0 +1,173 @@
+/* ===== zamonaviy ko'rinish: kartalar, shisha qatlamlar, yumshoq soyalar ===== */
+:root{
+  --r-xl:22px; --r-lg:16px; --r-md:12px;
+  --glass:rgba(255,255,255,.94); --glass-brd:rgba(15,27,45,.08); --ring:0 0 0 1px rgba(15,27,45,.07);
+  --sh-1:0 1px 2px rgba(15,27,45,.05),0 8px 22px -10px rgba(15,27,45,.16);
+  --sh-2:0 2px 4px rgba(15,27,45,.04),0 22px 48px -16px rgba(15,27,45,.24);
+  --page:linear-gradient(180deg,#f8f9fc 0%,#edf0f6 100%);
+  --accent-grad:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 62%,#7db0ff));
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --glass:rgba(11,20,38,.94); --glass-brd:rgba(255,255,255,.08); --ring:0 0 0 1px rgba(255,255,255,.07);
+  --sh-1:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.65);
+  --sh-2:0 2px 4px rgba(0,0,0,.35),0 24px 52px -18px rgba(0,0,0,.8);
+  --page:linear-gradient(180deg,#060c1a 0%,#02050c 100%);
+}}
+:root[data-theme="dark"]{
+  --glass:rgba(11,20,38,.94); --glass-brd:rgba(255,255,255,.08); --ring:0 0 0 1px rgba(255,255,255,.07);
+  --sh-1:0 1px 2px rgba(0,0,0,.4),0 10px 26px -12px rgba(0,0,0,.65);
+  --sh-2:0 2px 4px rgba(0,0,0,.35),0 24px 52px -18px rgba(0,0,0,.8);
+  --page:linear-gradient(180deg,#060c1a 0%,#02050c 100%);
+}
+body{background:var(--page);letter-spacing:-.006em}
+h1,h2,h3{letter-spacing:-.02em}
+.top{background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border-bottom:1px solid var(--glass-brd);padding-block:10px}
+.brand .mk{background:var(--accent-grad);border-radius:13px;box-shadow:0 8px 18px -8px var(--accent)}
+.search input{border-radius:999px;border:0;background:var(--surface);box-shadow:var(--ring),var(--sh-1);padding-left:46px;transition:box-shadow .2s}
+.search input:focus{box-shadow:0 0 0 2px var(--accent),var(--sh-1)}
+.langsel,#themeBtn{border-radius:999px;border:0;background:var(--surface);box-shadow:var(--ring),var(--sh-1)}
+.langsel{padding:0 12px}
+.btn{border-radius:var(--r-md);border:0;background:var(--surface);box-shadow:var(--ring);transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{background:var(--surface-2);box-shadow:var(--ring),var(--sh-1)}
+.btn:active{transform:translateY(1px)}
+.btn-accent{background:var(--accent-grad);box-shadow:0 10px 20px -10px var(--accent)}
+.btn-accent:hover{background:var(--accent-grad);box-shadow:0 12px 24px -10px var(--accent);filter:brightness(1.06)}
+.btn-primary{box-shadow:0 10px 20px -12px var(--primary)}
+.btn.sm{border-radius:10px}
+
+/* asosiy joylashuv: ikki alohida karta */
+.app{padding:12px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));gap:14px;grid-template-columns:424px minmax(0,1fr)}
+.panel{border:0;border-radius:var(--r-xl);box-shadow:var(--sh-2),var(--ring);padding:18px}
+.mapwrap{border-radius:var(--r-xl);box-shadow:var(--sh-2),var(--ring)}
+.view{gap:18px}
+#viewDetail:not([hidden]),#viewList:not([hidden]){animation:vin .28s cubic-bezier(.2,.7,.2,1)}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* toifa va filtrlar */
+.chip{border:0;box-shadow:var(--ring);background:var(--surface);transition:transform .15s,box-shadow .15s}
+.chip:hover{box-shadow:var(--ring),var(--sh-1);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--primary);box-shadow:0 10px 18px -10px var(--primary)}
+.filters{border:0;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);padding:16px;gap:14px}
+.seg{border:0;background:var(--bg);box-shadow:inset 0 0 0 1px var(--border);border-radius:12px}
+.seg button{border-radius:9px;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{box-shadow:var(--sh-1),var(--ring)}
+select{border:0;box-shadow:var(--ring);border-radius:10px}
+.origin,.rbanner{border:0;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+
+/* ro'yxat kartochkalari */
+.results{gap:2px}
+.results li+li{border-top:0}
+.card{border-radius:var(--r-lg);padding:12px 10px;transition:background .15s,transform .15s,box-shadow .15s}
+.card:hover,.card.hl{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);transform:translateX(2px)}
+.cicon,.cicon.sq{border-radius:14px}
+.dicon,.dicon.sq{border-radius:18px;box-shadow:0 12px 22px -12px rgba(0,0,0,.45)}
+.pill{padding:3px 10px}
+.mini .card{padding:9px 8px}
+
+/* batafsil panel */
+.dsec{border:0;border-radius:18px;box-shadow:inset 0 0 0 1px var(--border);background:var(--surface)}
+.dsec>h3{background:var(--surface-2);border-bottom:0;padding:11px 16px}
+.dsec .info>div{padding:12px 16px;border-bottom:1px solid var(--border)}
+.dsec .info>div:last-child{border-bottom:0}
+.rsum,.revform{border:0;border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--border)}
+.input{border:0;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--border-strong);background:var(--surface)}
+.input:focus{box-shadow:0 0 0 2px var(--accent)}
+
+/* xarita ustidagi boshqaruvlar: shisha */
+.lchip{background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-brd);box-shadow:var(--sh-1);transition:transform .15s}
+.lchip:hover{transform:translateY(-1px)}
+.lchip.lead{background:var(--primary);border-color:transparent}
+.zoom{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-brd);border-radius:16px;box-shadow:var(--sh-1)}
+.zoom button{transition:background .15s}
+.scalebar,.coordtip,.osmattr{background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--glass-brd)}
+.scalebar{padding:5px 8px;border-radius:9px;gap:3px}
+.toast{border-radius:14px;box-shadow:var(--sh-2)}
+
+@media (max-width:860px){
+  .app{padding:12px 16px 20px;gap:14px}
+  .panel{padding:16px}
+  .mapwrap{border-radius:var(--r-xl)}
+}
+/* ===== rang paletkasi: #03195b #0b2cb1 #1951fc #3781fc #6db4ff #cbe9fd ===== */
+:root{
+  --pal-1:#03195b; --pal-2:#0b2cb1; --pal-3:#1951fc; --pal-4:#3781fc; --pal-5:#6db4ff; --pal-6:#cbe9fd;
+  --accent:#1951fc; --accent-strong:#0b2cb1; --accent-soft:rgba(25,81,252,.12); --on-accent:#ffffff;
+  --navy:#03195b; --primary:#0b2cb1; --primary-ink:#ffffff;
+  --accent-grad:linear-gradient(180deg,#3781fc 0%,#1951fc 52%,#0b2cb1 100%);
+  --pill-grad:linear-gradient(180deg,#1951fc 0%,#0b2cb1 100%);
+  --gloss:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -1px 0 rgba(3,25,91,.35);
+  --page:linear-gradient(180deg,#f4f8ff 0%,#e3eefd 100%);
+  --map-road-major:#cbe9fd; --map-water:#a9d4f7; --map-park:#cfe8d6;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --accent:#3781fc; --accent-strong:#9ccbff; --accent-soft:rgba(55,129,252,.2);
+  --primary:#1951fc; --primary-ink:#ffffff; --navy:#03195b;
+  --bg:#020a22; --surface:#07153a; --surface-2:#0b1d4d; --border:#15306f; --border-strong:#23468f; --muted:#aebfe3; --faint:#7d93c4;
+  --accent-grad:linear-gradient(180deg,#6db4ff 0%,#3781fc 48%,#1951fc 100%);
+  --pill-grad:linear-gradient(180deg,#3781fc 0%,#1951fc 100%);
+  --glass:rgba(7,21,58,.94);
+  --page:linear-gradient(180deg,#03195b 0%,#020a22 38%,#01040f 100%);
+  --map-land:#08183f; --map-minor:#0e2358; --map-road:#18337a; --map-road-major:#2b58c4; --map-road-edge:#040d28;
+  --map-water:#134f9a; --map-park:#0f3a3d; --map-bldg:#12308a; --map-bldg-edge:#1f46ad; --map-pitch:#14464a; --map-air:#102a68;
+  --map-out:#030a1f; --map-border:#4a74d6;
+}}
+:root[data-theme="dark"]{
+  --accent:#3781fc; --accent-strong:#9ccbff; --accent-soft:rgba(55,129,252,.2);
+  --primary:#1951fc; --primary-ink:#ffffff; --navy:#03195b;
+  --bg:#020a22; --surface:#07153a; --surface-2:#0b1d4d; --border:#15306f; --border-strong:#23468f; --muted:#aebfe3; --faint:#7d93c4;
+  --accent-grad:linear-gradient(180deg,#6db4ff 0%,#3781fc 48%,#1951fc 100%);
+  --pill-grad:linear-gradient(180deg,#3781fc 0%,#1951fc 100%);
+  --glass:rgba(7,21,58,.94);
+  --page:linear-gradient(180deg,#03195b 0%,#020a22 38%,#01040f 100%);
+  --map-land:#08183f; --map-minor:#0e2358; --map-road:#18337a; --map-road-major:#2b58c4; --map-road-edge:#040d28;
+  --map-water:#134f9a; --map-park:#0f3a3d; --map-bldg:#12308a; --map-bldg-edge:#1f46ad; --map-pitch:#14464a; --map-air:#102a68;
+  --map-out:#030a1f; --map-border:#4a74d6;
+}
+/* yaltiroq "shisha" tugmalar */
+.btn-accent,.brand .mk{background:var(--accent-grad);box-shadow:var(--gloss),0 12px 24px -10px var(--accent)}
+.btn-accent:hover{background:var(--accent-grad);filter:brightness(1.07);box-shadow:var(--gloss),0 14px 28px -10px var(--accent)}
+.btn-primary{background:var(--pill-grad);color:var(--primary-ink);box-shadow:var(--gloss),0 12px 22px -12px var(--primary)}
+.btn-primary:hover{background:var(--pill-grad);filter:brightness(1.07);opacity:1}
+.chip[aria-pressed="true"],.lchip.lead{background:var(--pill-grad);color:#fff;box-shadow:var(--gloss),0 10px 18px -10px var(--primary)}
+.lchip.lead{border-color:transparent}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-strong);font-weight:700}
+.switch input:checked{background:var(--accent)}
+.toast{background:var(--pill-grad);box-shadow:var(--gloss),var(--sh-2)}
+.starpick input:checked ~ label,.starpick label:hover,.starpick label:hover ~ label{color:var(--pal-5)}
+a.tel{color:var(--accent-strong)}
+.dsec>h3{color:var(--accent-strong)}
+.user .dot{stroke:var(--pal-1)}
+/* ro'yxat kartalari va chiplar: ma'lumotlar qalin */
+.cname{font-weight:800;letter-spacing:-.005em}
+.cmeta{font-weight:650;color:color-mix(in srgb,var(--muted) 78%,var(--text,currentColor))}
+.cline{font-weight:700}
+.rt{font-weight:800}
+.rt .cnt,.cline .rc{font-weight:650;color:var(--muted)}
+.dist{font-weight:800;font-size:13px}
+.pill{font-weight:750;font-size:12px;padding:3px 11px}
+.chip{font-weight:700}
+.chip .n{font-weight:800;opacity:.8}
+.chip[aria-pressed="true"] .n{opacity:1}
+/* bir xil shakl: bir qatorli boshqaruvlar - to'liq yumaloq, ikon/kartalar - yumaloq to'rtburchak */
+:root{--r-ctl:999px;--r-ico:14px}
+.btn,.btn.sm,.langsel,#themeBtn,.search input,select,.chip,.lchip,.pill,.seg,.seg button,.cta,.toast{border-radius:var(--r-ctl)}
+input.input,select.input{border-radius:var(--r-ctl);padding-left:16px;padding-right:16px}
+textarea.input{border-radius:18px}
+.seg{padding:3px}
+.seg button{height:30px;padding:0 14px}
+select{height:36px;padding:0 14px}
+.btn.sm{height:34px;padding:0 14px}
+.cicon,.cicon.sq{border-radius:var(--r-ico)}
+.lchip .sq{border-radius:50%}
+.fab,.mapctl button,.zoom button{border-radius:14px}
+/* kategoriya ikonlari: brend ikonkasi kabi yaltiroq gradient */
+.cicon{position:relative;isolation:isolate;border-radius:13px;box-shadow:var(--gloss),0 8px 16px -8px rgba(3,10,40,.55)}
+.cicon::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:linear-gradient(180deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.06) 48%,rgba(3,25,91,.26) 100%)}
+.cicon svg.i{width:20px;height:20px;stroke-width:2.4}
+.brand .mk,.cicon,.cicon.sq{border-radius:13px}
+/* tezlik: xarita ustida blur yo'q, kartalar ko'rinmasa chizilmaydi */
+.top,.lchip,.zoom,.scalebar,.coordtip,.osmattr{-webkit-backdrop-filter:none;backdrop-filter:none}
+.card{content-visibility:auto;contain-intrinsic-size:auto 68px}
+#mapReal{will-change:transform}
+.cicon{box-shadow:var(--gloss)}
+.cicon::before{will-change:auto}

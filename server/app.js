@@ -1,47 +1,53 @@
-import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { placesRouter } from "./routes/places.js";
-import { CATEGORIES } from "./lib/categories.js";
-import { BOUNDS } from "./lib/validate.js";
+import compression from "compression";
+import express from "express";
+import { adminAuth } from "./lib/auth.js";
+import { JsonStore } from "./lib/store.js";
+import { reportsRouter } from "./routes/reports.js";
+import { reviewsRouter } from "./routes/reviews.js";
 
-const publicDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
+const PUBLIC_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../public");
 
-/** Ilovani yig'adi (listen qilmaydi — testlarda ham ishlatiladi). */
-export function createApp({ store, adminToken = "" }) {
+/**
+ * @param {{ dataDir: string, adminToken?: string }} opts
+ * @returns {Promise<{ app: import("express").Express, stores: JsonStore[] }>}
+ */
+export async function createApp({ dataDir, adminToken }) {
+  const reviews = await JsonStore.open(path.join(dataDir, "reviews.json"), { byService: {} });
+  const reports = await JsonStore.open(path.join(dataDir, "reports.json"), { items: [] });
+
   const app = express();
   app.disable("x-powered-by");
-
+  app.set("trust proxy", 1); // Render proxy ortida haqiqiy IP (rate limit uchun)
   app.use((_req, res, next) => {
-    res.set({
-      "X-Content-Type-Options": "nosniff",
-      "Referrer-Policy": "same-origin",
-      "X-Frame-Options": "DENY",
-      // Frontend faqat o'z domenidan skript/stil yuklaydi, inline skript yo'q.
-      "Content-Security-Policy":
-        "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'",
-    });
+    res.set({ "X-Content-Type-Options": "nosniff", "Referrer-Policy": "strict-origin-when-cross-origin" });
     next();
   });
+  app.use(compression());
 
-  app.use(express.json({ limit: "10kb" }));
+  app.get("/api/health", (_req, res) => res.json({ ok: true, uptime: Math.round(process.uptime()) }));
+  app.use("/api", express.json({ limit: "10kb" }));
+  app.use("/api/reviews", reviewsRouter(reviews));
+  app.use("/api/reports", reportsRouter(reports, adminAuth(adminToken)));
+  app.use("/api", (_req, res) => res.status(404).json({ error: "Topilmadi" }));
 
-  app.get("/api/health", (_req, res) => res.json({ ok: true }));
-  app.get("/api/categories", (_req, res) => res.json(CATEGORIES));
-  app.get("/api/meta", (_req, res) => res.json({ bounds: BOUNDS, center: { lat: 41.3111, lng: 69.2797 } }));
-  app.use("/api/places", placesRouter({ store, adminToken }));
-  app.use("/api", (_req, res) => res.status(404).json({ error: "Endpoint topilmadi" }));
+  app.use(
+    express.static(PUBLIC_DIR, {
+      setHeaders(res, file) {
+        // Kod har deploy'da o'zgaradi: har safar tekshiriladi (ETag bilan arzon). Rasm va ma'lumot uzoq keshlanadi.
+        const long = /[\\/](img|data)[\\/]/.test(file);
+        res.set("Cache-Control", long ? "public, max-age=86400" : "no-cache");
+      },
+    }),
+  );
 
-  app.use(express.static(publicDir, { maxAge: "1h" }));
-
-  // Xatolar: noto'g'ri JSON, juda katta body va h.k.
-  // eslint-disable-next-line no-unused-vars
+  // Xatolar (masalan, noto'g'ri JSON) — doim JSON javob
   app.use((err, _req, res, _next) => {
-    if (err.type === "entity.parse.failed") return res.status(400).json({ error: "JSON noto'g'ri" });
-    if (err.type === "entity.too.large") return res.status(413).json({ error: "So'rov juda katta" });
-    console.error(err);
-    res.status(500).json({ error: "Server xatosi" });
+    const status = err.status && err.status < 500 ? err.status : 500;
+    if (status === 500) console.error(err);
+    res.status(status).json({ error: status === 500 ? "Server xatosi" : "So'rov noto'g'ri" });
   });
 
-  return app;
+  return { app, stores: [reviews, reports] };
 }

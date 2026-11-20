@@ -1,6 +1,9 @@
 node_modules/
 .env
-server/data/places.json
+# Avtomatik yaratiladi (npm run build)
+public/js/app.js
+# Sharhlar va xabarlar (DATA_DIR)
+var/
 *.tmp
 .DS_Store
 Thumbs.db

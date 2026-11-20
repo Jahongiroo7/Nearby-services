@@ -1,0 +1,110 @@
+/* hudud tanlash: faqat o'zimning hududim / butun davlat */
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+.scope button{min-width:0;height:44px;padding:0 12px;border:0;border-radius:var(--r-ctl,999px);background:var(--surface);box-shadow:var(--ring);color:inherit;font:inherit;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.scope button:hover{transform:translateY(-1px);box-shadow:var(--ring),var(--sh-1)}
+.scope button svg.i{flex:none;width:16px;height:16px}
+.scope .sl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scope button[aria-pressed="true"]{background:var(--pill-grad);color:#fff;box-shadow:var(--gloss),0 10px 18px -10px var(--primary)}
+.scope b{font-weight:800}
+.mapext{font-weight:700;text-decoration:none}
+.mapext,.mapext:visited,.mapext:hover{color:var(--accent-strong)}
+.mapext svg.i{color:var(--accent-strong)}
+.route-case{fill:none;stroke:#fff;stroke-width:9px;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.9;pointer-events:none}
+.gallery{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:4px 0 4px;padding:2px 2px 6px;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery figure{position:relative;flex:0 0 84%;scroll-snap-align:start;margin:0;border-radius:var(--r-lg,18px);overflow:hidden;box-shadow:var(--ring);background:var(--surface-2)}
+.gallery svg{display:block;width:100%;height:auto;aspect-ratio:16/9}
+.gallery figcaption{position:absolute;left:10px;bottom:10px;padding:3px 10px;border-radius:999px;background:rgba(3,25,91,.72);color:#fff;font-size:11.5px;font-weight:700}
+.gnote{margin:0 0 12px;font-size:11.5px;color:var(--muted)}
+.mapscope{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);z-index:5;width:min(360px,calc(100% - 24px));margin:0;gap:6px;padding:5px;border-radius:999px;background:var(--glass);box-shadow:var(--ring),var(--sh-2)}
+.mapscope button{height:38px;box-shadow:none;background:transparent}
+.mapscope button[aria-pressed="true"]{background:var(--pill-grad);box-shadow:var(--gloss)}
+@media (max-width:640px){.mapscope{width:calc(100% - 24px)}}
+.galwrap{position:relative}
+.garrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:36px;height:36px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer;color:#fff;background:var(--pill-grad);box-shadow:var(--gloss),0 8px 16px -8px rgba(3,10,40,.6)}
+.garrow.prev{left:8px}.garrow.next{right:8px}.garrow.next svg{transform:scaleX(-1)}
+.garrow:disabled{opacity:0;pointer-events:none}
+.garrow:hover:not(:disabled){filter:brightness(1.1)}
+/* viloyat rejimi: hudud chegarasi va sxematik fon ko'rinmaydi */
+.local-scope .rborder,.local-scope .rfill,.local-scope .tsfill,.local-scope #rsel{display:none}
+/* davlat ko'rinishi: viloyat va davlat chegaralari oq (yorug' rejimda ko'rinishi uchun to'q kulrang), qolgan chiziqlar kulrang */
+.rborder,.uzb{stroke:#6b7280}
+.rborder{stroke-dasharray:none;stroke-width:1.4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rborder,:root:not([data-theme="light"]) .uzb{stroke:#fff}}
+:root[data-theme="dark"] .rborder,:root[data-theme="dark"] .uzb{stroke:#fff}
+/* viloyat rejimi: tashqaridagi hamma yozuv yashirin; viloyat tanlash paneli */
+.local-scope .ctry,.local-scope .rlbl,.city.outr{display:none !important}
+.not-ts #gDistricts{display:none}
+.regpick{position:absolute;left:50%;bottom:108px;transform:translateX(-50%);z-index:6;width:min(430px,calc(100% - 24px));max-height:calc(100% - 190px);overflow:auto;padding:12px;border-radius:22px;background:var(--glass);box-shadow:var(--ring),var(--sh-2)}
+.regpick[hidden]{display:none}
+.rp-t{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-strong);margin:0 4px 8px}
+.rp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:6px}
+.rp-g button{height:38px;padding:0 12px;border:0;border-radius:999px;background:var(--surface);box-shadow:var(--ring);color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-g button:hover{box-shadow:var(--ring),var(--sh-1)}
+.rp-g button[aria-pressed="true"]{background:var(--pill-grad);color:#fff;box-shadow:var(--gloss)}
+.phnote{display:block;margin-top:4px;font-size:11.5px;font-weight:500;color:var(--muted)}
+.citysel{height:34px;max-width:100%;padding:0 12px;border:0;border-radius:999px;background:var(--surface);box-shadow:var(--ring);color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+/* suriladigan viloyat/davlat tanlagichi */
+.scope.sw{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:999px;background:var(--surface-2);box-shadow:var(--ring);touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.scope.sw.mapscope{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);background:var(--glass);box-shadow:var(--ring),var(--sh-2)}
+.scope.sw.dragging{cursor:grabbing}
+.sw .sthumb{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 16px)/2);border-radius:999px;background:var(--pill-grad);box-shadow:var(--gloss),0 8px 16px -8px var(--primary);transition:transform .32s cubic-bezier(.3,.9,.3,1);pointer-events:none;z-index:0}
+.sw[data-pos="1"] .sthumb{transform:translateX(calc(100% + 6px))}
+.scope.sw button,.scope.sw button:hover{position:relative;z-index:1;height:38px;background:transparent;box-shadow:none;transform:none;transition:color .2s}
+.scope.sw button[aria-pressed="true"]{background:transparent;color:#fff;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.sw .sthumb{transition:none}}
+/* kompyuterda sahifa o'zi aylanmaydi: ilova oynaga aynan sig'adi (ichida panel va xarita aylanadi), shuning uchun ostida bo'sh joy bo'lmaydi */
+@media (min-width:861px) and (min-height:600px){html,body{overflow:hidden}.app{overflow:hidden}}
+/* zamonaviy til menyusi */
+.top{z-index:50}
+.lang{position:relative}
+.lang .langsel{position:absolute;inset:0;width:1px;height:1px;opacity:0;pointer-events:none;padding:0;border:0}
+.langbtn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 12px 0 7px;border:0;border-radius:999px;background:var(--surface);box-shadow:var(--ring),var(--sh-1);color:var(--text);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;transition:box-shadow .15s}
+.langbtn:hover{box-shadow:var(--ring),var(--sh-2)}
+.langbtn[aria-expanded="true"]{box-shadow:0 0 0 2px var(--accent),var(--sh-2)}
+.langbtn>svg.i{width:14px;height:14px;transition:transform .2s}
+.langbtn[aria-expanded="true"]>svg.i{transform:rotate(180deg)}
+.lc{display:inline-grid;place-items:center;min-width:30px;height:26px;padding:0 7px;border-radius:999px;background:var(--pill-grad);color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;box-shadow:var(--gloss)}
+.langmenu{position:absolute;right:0;top:calc(100% + 10px);z-index:60;min-width:208px;margin:0;padding:6px;list-style:none;border-radius:22px;background:var(--surface);box-shadow:var(--ring),var(--sh-2);transform-origin:top right;animation:lmIn .16s ease-out}
+.langmenu[hidden]{display:none}
+@keyframes lmIn{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.langmenu li{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:16px;cursor:pointer;font-weight:650;font-size:14px;outline:0;transition:background .12s}
+.langmenu li .lc{background:var(--accent-soft);color:var(--accent-strong);box-shadow:none}
+.langmenu li:hover,.langmenu li:focus-visible{background:var(--surface-2)}
+.langmenu li:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.langmenu li[aria-selected="true"]{background:var(--accent-soft)}
+.langmenu li[aria-selected="true"] .lc{background:var(--pill-grad);color:#fff;box-shadow:var(--gloss)}
+.langmenu .ck{margin-left:auto;width:18px;height:18px;opacity:0;color:var(--accent-strong)}
+.langmenu li[aria-selected="true"] .ck{opacity:1}
+@media (max-width:520px){.langbtn .lname{display:none}.langbtn{padding:0 10px 0 6px}}
+@media (prefers-reduced-motion:reduce){.langmenu{animation:none}}
+.gallery img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--surface-2)}
+.gallery .credit{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px);padding:3px 10px;border-radius:999px;background:rgba(3,25,91,.74);color:#fff;font-size:10.5px;font-weight:600;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gallery .credit:hover{background:rgba(3,25,91,.92)}
+/* yumaloqroq burchaklar */
+.langmenu{border-radius:30px;padding:8px}
+.langmenu li{border-radius:999px}
+.regpick{border-radius:30px}
+.gallery figure{border-radius:26px}
+/* xizmat logotiplari */
+.cicon.logo,.dicon.logo{background:none !important;box-shadow:none !important;border-radius:0;display:block;overflow:visible}
+.cicon.logo::before{display:none}
+.cicon.logo svg,.dicon.logo svg{display:block;width:100%;height:100%;filter:drop-shadow(0 6px 8px rgba(3,10,40,.35))}
+.dicon.logo{width:56px;height:56px}
+.logoimg{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px;background:var(--surface-2)}
+/* kunduzgi rejim: boyroq va kontrastliroq (qorong'i rejim qoidalari kuchliroq, shuning uchun unga tegmaydi) */
+:root{
+  --bg:#e6edfb; --surface:#ffffff; --surface-2:#edf3fd; --text:#06102b; --muted:#2b3955; --faint:#55637f;
+  --border:#cfdcf2; --border-strong:#a9bad9;
+  --page:linear-gradient(180deg,#dbe7fc 0%,#c8d9f6 100%);
+  --ring:0 0 0 1px rgba(25,81,252,.18);
+  --sh-1:0 1px 2px rgba(11,44,177,.10),0 10px 24px -10px rgba(11,44,177,.30);
+  --sh-2:0 2px 4px rgba(11,44,177,.08),0 24px 50px -16px rgba(11,44,177,.34);
+  --glass:rgba(255,255,255,.97); --glass-brd:rgba(25,81,252,.14);
+  --accent-soft:rgba(25,81,252,.14);
+  --map-land:#e8effb; --map-minor:#ffffff; --map-water:#9ccbf4; --map-park:#bde3c8; --map-pitch:#a6dcb5;
+  --map-bldg:#c9d6ee; --map-bldg-edge:#a6b6d8; --map-label:#3f4f6e; --map-border:#4660ad; --map-out:#c6d5ee; --map-air:#d0def3;
+  --map-road:#ffffff; --map-road-major:#b9d3fa; --map-road-edge:#bccae4;
+  --success-soft:#d3f3df; --danger-soft:#ffdde6;
+}
+.rborder,.uzb{stroke:#4660ad}

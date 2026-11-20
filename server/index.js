@@ -1,22 +1,18 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { createApp } from "./app.js";
-import { createStore } from "./lib/store.js";
 
-const dir = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PORT) || 3000;
-const DATA_FILE = process.env.DATA_FILE || path.join(dir, "data", "places.json");
+const port = Number(process.env.PORT) || 3000;
+const dataDir = path.resolve(process.env.DATA_DIR || "./var");
 
-const store = await createStore({
-  file: DATA_FILE,
-  seedFile: path.join(dir, "data", "places.seed.json"),
-});
+const { app, stores } = await createApp({ dataDir, adminToken: process.env.ADMIN_TOKEN });
+const server = app.listen(port, () => console.log(`http://localhost:${port}  (ma'lumot: ${dataDir})`));
 
-const app = createApp({ store, adminToken: process.env.ADMIN_TOKEN || "" });
-
-const server = app.listen(PORT, () => {
-  console.log(`http://localhost:${PORT}`);
-  if (!process.env.ADMIN_TOKEN) console.log("Eslatma: ADMIN_TOKEN yo'q — POST/PUT/PATCH/DELETE o'chirilgan.");
-});
-
-for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => server.close(() => process.exit(0)));
+// Qayta ishga tushirishda kutilayotgan yozuvlar yo'qolmasin
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(async () => {
+      await Promise.all(stores.map((s) => s.idle()));
+      process.exit(0);
+    });
+  });
+}

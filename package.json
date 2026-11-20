@@ -1,16 +1,21 @@
 {
-  "name": "yaqin-xizmatlar",
-  "version": "1.0.0",
-  "description": "Toshkent bo'yicha yaqin xizmatlar: Express API + vanilla JS frontend",
+  "name": "nearby-services",
+  "version": "2.0.0",
+  "description": "Nearby Services: Toshkent va O'zbekiston bo'yicha yaqin xizmatlar xaritasi (Express + vanilla JS)",
   "private": true,
   "type": "module",
   "engines": { "node": "22.x" },
   "scripts": {
+    "build": "node scripts/build-client.js",
+    "prestart": "npm run build",
     "start": "node server/index.js",
-    "dev": "node --watch server/index.js",
-    "test": "node --test"
+    "predev": "npm run build",
+    "dev": "node --watch-path=server --watch-path=client server/index.js",
+    "pretest": "npm run build",
+    "test": "node --test \"test/*.test.js\""
   },
   "dependencies": {
+    "compression": "^1.7.5",
     "express": "^4.21.2"
   }
 }

@@ -1,118 +1,142 @@
-import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { after, before, describe, it } from "node:test";
 import { createApp } from "../server/app.js";
-import { createStore } from "../server/lib/store.js";
-import { isOpenNow, distanceKm } from "../server/lib/geo.js";
 
-const seedFile = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "server", "data", "places.seed.json");
 const TOKEN = "test-token";
-let server, base, tmp;
+let server, base, dir, stores;
+
+const call = (url, { method = "GET", body, token } = {}) =>
+  fetch(base + url, {
+    method,
+    headers: {
+      ...(body && { "Content-Type": "application/json" }),
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: body && JSON.stringify(body),
+  });
+
+const review = (over = {}) => ({ serviceId: "s1", rid: "r-1", name: "Ali", stars: 5, text: "Yaxshi xizmat", ...over });
 
 before(async () => {
-  tmp = await mkdtemp(path.join(tmpdir(), "yx-"));
-  const store = await createStore({ file: path.join(tmp, "places.json"), seedFile });
-  server = createApp({ store, adminToken: TOKEN }).listen(0);
+  dir = await fs.mkdtemp(path.join(os.tmpdir(), "ns-"));
+  const made = await createApp({ dataDir: dir, adminToken: TOKEN });
+  stores = made.stores;
+  server = made.app.listen(0);
   base = `http://127.0.0.1:${server.address().port}`;
 });
+
 after(async () => {
-  await new Promise((r) => server.close(r));
-  await rm(tmp, { recursive: true, force: true });
+  server.close();
+  await Promise.all(stores.map((s) => s.idle()));
+  await fs.rm(dir, { recursive: true, force: true });
 });
 
-const j = (url, init) => fetch(base + url, init).then(async (r) => ({ status: r.status, body: r.status === 204 ? null : await r.json() }));
-const auth = { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" };
-const valid = { name: "Test dorixona", category: "pharmacy", address: "Test ko'chasi 1", lat: 41.31, lng: 69.28, opens: 8, closes: 20 };
+describe("umumiy", () => {
+  it("health", async () => {
+    const res = await call("/api/health");
+    assert.equal(res.status, 200);
+    assert.equal((await res.json()).ok, true);
+  });
 
-test("geo: masofa va ish vaqti", () => {
-  assert.ok(Math.abs(distanceKm({ lat: 41.3, lng: 69.2 }, { lat: 41.3, lng: 69.2 })) < 1e-9);
-  assert.ok(distanceKm({ lat: 41.3, lng: 69.2 }, { lat: 41.4, lng: 69.2 }) > 11);
-  const p = { opens: 9, closes: 18 };
-  // 2026-01-01 08:00 UTC = 13:00 Toshkent (UTC+5)
-  assert.equal(isOpenNow(p, new Date("2026-01-01T08:00:00Z")), true);
-  // 20:00 UTC = 01:00 Toshkent
-  assert.equal(isOpenNow(p, new Date("2026-01-01T20:00:00Z")), false);
-  assert.equal(isOpenNow({ opens: 0, closes: 24 }, new Date()), true);
+  it("noma'lum API yo'li JSON 404 qaytaradi", async () => {
+    const res = await call("/api/yoq");
+    assert.equal(res.status, 404);
+    assert.ok((await res.json()).error);
+  });
+
+  it("buzuq JSON 400 qaytaradi", async () => {
+    const res = await fetch(`${base}/api/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{bad",
+    });
+    assert.equal(res.status, 400);
+  });
+
+  it("bosh sahifa va ma'lumot fayllari beriladi", async () => {
+    const page = await call("/");
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /Nearby Services/);
+    for (const f of ["osm", "bounds", "i18n", "photos"]) {
+      const res = await call(`/data/${f}.json`);
+      assert.equal(res.status, 200, f);
+      assert.ok(Object.keys(await res.json()).length > 0, f);
+    }
+  });
 });
 
-test("GET /api/categories", async () => {
-  const { status, body } = await j("/api/categories");
-  assert.equal(status, 200);
-  assert.ok(body.some((c) => c.id === "pharmacy"));
+describe("sharhlar", () => {
+  it("qo'shadi va ro'yxatda qaytaradi", async () => {
+    assert.equal((await call("/api/reviews", { method: "POST", body: review() })).status, 201);
+    const all = await (await call("/api/reviews")).json();
+    assert.equal(all.s1.length, 1);
+    assert.deepEqual({ name: all.s1[0].name, stars: all.s1[0].stars }, { name: "Ali", stars: 5 });
+  });
+
+  it("bir xil rid ikki marta qo'shilmaydi", async () => {
+    const res = await call("/api/reviews", { method: "POST", body: review() });
+    assert.equal(res.status, 200);
+    assert.equal((await (await call("/api/reviews")).json()).s1.length, 1);
+  });
+
+  it("noto'g'ri ma'lumotni rad etadi", async () => {
+    for (const bad of [{ stars: 0 }, { stars: 6 }, { stars: 2.5 }, { text: "ab" }, { serviceId: "../x" }, { rid: "" }]) {
+      const res = await call("/api/reviews", { method: "POST", body: review({ rid: "x" + Math.random(), ...bad }) });
+      assert.equal(res.status, 400, JSON.stringify(bad));
+    }
+  });
+
+  it("matn va ism uzunligi cheklanadi", async () => {
+    await call("/api/reviews", { method: "POST", body: review({ serviceId: "s2", rid: "long", name: "N".repeat(500), text: "T".repeat(5000) }) });
+    const [r] = (await (await call("/api/reviews")).json()).s2;
+    assert.equal(r.name.length, 60);
+    assert.equal(r.text.length, 1000);
+  });
+
+  it("diskka saqlanadi", async () => {
+    await Promise.all(stores.map((s) => s.idle()));
+    const saved = JSON.parse(await fs.readFile(path.join(dir, "reviews.json"), "utf8"));
+    assert.equal(saved.byService.s1.length, 1);
+  });
 });
 
-test("GET /api/places: masofa bo'yicha saralangan", async () => {
-  const { status, body } = await j("/api/places?lat=41.3111&lng=69.2797&sort=dist");
-  assert.equal(status, 200);
-  assert.equal(body.total, 24);
-  const d = body.items.map((p) => p.distanceKm);
-  assert.deepEqual(d, [...d].sort((a, b) => a - b));
-});
+describe("xabarlar (reports)", () => {
+  let id;
 
-test("GET /api/places: filtrlar", async () => {
-  const cat = await j("/api/places?category=metro&lat=41.31&lng=69.28");
-  assert.equal(cat.body.total, 3);
-  assert.ok(cat.body.items.every((p) => p.category === "metro"));
-  const q = await j("/api/places?q=chorsu&lat=41.31&lng=69.28");
-  assert.ok(q.body.total >= 2);
-  const r = await j("/api/places?lat=41.3111&lng=69.2797&radius=1");
-  assert.ok(r.body.items.every((p) => p.distanceKm <= 1));
-});
+  it("hamma yuborishi mumkin", async () => {
+    const res = await call("/api/reports", { method: "POST", body: { item: "s1", why: "Telefon noto'g'ri", text: "izoh" } });
+    assert.equal(res.status, 201);
+    id = (await res.json()).id;
+  });
 
-test("GET /api/places: noto'g'ri parametrlar 400 qaytaradi", async () => {
-  for (const url of ["/api/places?lat=abc&lng=1", "/api/places?lat=41.3", "/api/places?sort=x", "/api/places?category=zzz"]) {
-    assert.equal((await j(url)).status, 400, url);
-  }
-});
+  it("noto'g'ri xabarni rad etadi", async () => {
+    assert.equal((await call("/api/reports", { method: "POST", body: { item: "s1" } })).status, 400);
+  });
 
-test("GET /api/places/:id", async () => {
-  assert.equal((await j("/api/places/1")).body.id, 1);
-  assert.equal((await j("/api/places/9999")).status, 404);
-  assert.equal((await j("/api/places/abc")).status, 400);
-});
+  it("o'qish tokensiz 401, noto'g'ri token 401", async () => {
+    assert.equal((await call("/api/reports")).status, 401);
+    assert.equal((await call("/api/reports", { token: "xato" })).status, 401);
+  });
 
-test("yozish tokensiz rad etiladi", async () => {
-  const noAuth = await j("/api/places", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(valid) });
-  assert.equal(noAuth.status, 401);
-  const bad = await j("/api/places", { method: "POST", headers: { ...auth, Authorization: "Bearer wrong" }, body: JSON.stringify(valid) });
-  assert.equal(bad.status, 401);
-});
+  it("admin ko'radi, holatini o'zgartiradi va o'chiradi", async () => {
+    const list = await (await call("/api/reports", { token: TOKEN })).json();
+    assert.equal(list[0].id, id);
+    assert.equal(list[0].status, "new");
 
-test("CRUD: yaratish, o'zgartirish, o'chirish", async () => {
-  const created = await j("/api/places", { method: "POST", headers: auth, body: JSON.stringify(valid) });
-  assert.equal(created.status, 201);
-  const id = created.body.id;
+    assert.equal((await call(`/api/reports/${id}`, { method: "PATCH", token: TOKEN, body: { status: "bad" } })).status, 400);
+    const patched = await call(`/api/reports/${id}`, { method: "PATCH", token: TOKEN, body: { status: "done" } });
+    assert.equal((await patched.json()).status, "done");
 
-  const patched = await j(`/api/places/${id}`, { method: "PATCH", headers: auth, body: JSON.stringify({ rating: 4.44 }) });
-  assert.equal(patched.status, 200);
-  assert.equal(patched.body.rating, 4.4);
-  assert.equal(patched.body.name, valid.name);
+    assert.equal((await call(`/api/reports/${id}`, { method: "DELETE", token: TOKEN })).status, 204);
+    assert.equal((await call(`/api/reports/${id}`, { method: "DELETE", token: TOKEN })).status, 404);
+  });
 
-  const put = await j(`/api/places/${id}`, { method: "PUT", headers: auth, body: JSON.stringify({ ...valid, name: "Yangi nom" }) });
-  assert.equal(put.body.name, "Yangi nom");
-
-  assert.equal((await j(`/api/places/${id}`, { method: "DELETE", headers: auth })).status, 204);
-  assert.equal((await j(`/api/places/${id}`)).status, 404);
-});
-
-test("validatsiya: noto'g'ri ma'lumot 422", async () => {
-  const r = await j("/api/places", { method: "POST", headers: auth, body: JSON.stringify({ ...valid, category: "x", lat: 10 }) });
-  assert.equal(r.status, 422);
-  assert.ok(r.body.fields.category && r.body.fields.lat);
-});
-
-test("buzuq JSON 400, noma'lum endpoint 404", async () => {
-  const r = await fetch(`${base}/api/places`, { method: "POST", headers: auth, body: "{oops" });
-  assert.equal(r.status, 400);
-  assert.equal((await j("/api/nope")).status, 404);
-});
-
-test("frontend statik fayllari beriladi", async () => {
-  const html = await fetch(base + "/");
-  assert.equal(html.status, 200);
-  assert.match(await html.text(), /Yaqin xizmatlar/);
-  assert.equal((await fetch(base + "/js/main.js")).status, 200);
+  it("tezlik cheklovi: ketma-ket ko'p yuborish 429 beradi", async () => {
+    const codes = [];
+    for (let i = 0; i < 8; i++) codes.push((await call("/api/reports", { method: "POST", body: { item: "s1", why: "x" } })).status);
+    assert.ok(codes.includes(429), codes.join());
+  });
 });

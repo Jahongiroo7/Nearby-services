@@ -1,0 +1,95 @@
+/* ===== telefon varianti: xarita to'liq ekranda, xizmatlar pastdan tortib chiqariladigan panelda ===== */
+.sheet-h{display:none}
+@media (max-width:860px){
+  html,body{height:100%;overflow:hidden}
+  body{display:flex;flex-direction:column;height:100dvh}
+  .top{flex:none;padding-block:8px;gap:8px 10px}
+  .brand small{display:none}
+  .app{display:block;position:relative;flex:1;min-height:0;padding:0;gap:0;overflow:hidden}
+  .mapwrap{position:absolute;inset:0;order:0;height:auto;min-height:0;border-radius:0;box-shadow:none}
+  .panel{position:absolute;left:0;right:0;bottom:0;z-index:10;height:var(--sh,50%);max-height:100%;overflow-y:auto;overscroll-behavior:contain;border-radius:26px 26px 0 0;padding:0 16px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px -12px rgba(3,25,91,.4),var(--ring);-webkit-overflow-scrolling:touch}
+  .sheet-h{display:flex;user-select:none;-webkit-user-select:none;justify-content:center;align-items:center;position:sticky;top:0;z-index:3;margin:0 -16px 6px;padding:10px 0 12px;background:var(--surface);cursor:grab;touch-action:none;border-radius:26px 26px 0 0}
+  .sheet-h i{display:block;width:46px;height:5px;border-radius:999px;background:var(--border-strong)}
+  .mapscope.scope.sw{top:56px;bottom:auto;left:12px;transform:none;width:calc(100% - 76px)}
+  .mapscope.scope.sw button{padding:0 6px;gap:0;font-size:12px}.mapscope.scope.sw button svg.i{display:none}
+  #q::placeholder{font-size:13px}
+  .regpick{bottom:auto;top:104px;max-height:38%}
+  .scalebar,.osmattr{bottom:calc(var(--sh,50%) + 10px)}
+  .osmattr{right:12px}
+  .app[data-snap="full"] .scalebar,.app[data-snap="full"] .osmattr{display:none}
+  .toast{bottom:calc(var(--sh,50%) + 16px)}
+}
+/* ===== kunduzgi rejim: oq o'rniga yumshoq ko'k tuslar + qo'shimcha ranglar (qorong'i rejimga tegmaydi) ===== */
+:root[data-theme="light"]{
+  --bg:#c3d4f1; --surface:#e9f0fc; --surface-2:#d6e3f8; --text:#06102b; --muted:#26365a; --faint:#4a5a7c;
+  --border:#aec2e4; --border-strong:#8aa3d1;
+  --page:linear-gradient(180deg,#b3caef 0%,#94b2e3 100%);
+  --glass:rgba(226,236,251,.96); --glass-brd:rgba(25,81,252,.24); --ring:0 0 0 1px rgba(25,81,252,.26);
+  --accent-soft:rgba(25,81,252,.18);
+  --success:#0f766e; --success-soft:#b8ece0; --danger:#be123c; --danger-soft:#ffd0da; --warning:#b45309;
+  --map-land:#c6daf5; --map-minor:#e1ecfb; --map-water:#78b4ea; --map-park:#a0d6ae; --map-pitch:#86cc9a;
+  --map-bldg:#b0c2e3; --map-bldg-edge:#8aa1cd; --map-label:#2c3c61; --map-out:#a4bce3; --map-air:#b8cdee;
+  --map-road:#e6effc; --map-road-major:#97bff6; --map-road-edge:#8aa3d1; --pin-ring:#eef4fe;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#c3d4f1; --surface:#e9f0fc; --surface-2:#d6e3f8; --text:#06102b; --muted:#26365a; --faint:#4a5a7c;
+  --border:#aec2e4; --border-strong:#8aa3d1;
+  --page:linear-gradient(180deg,#b3caef 0%,#94b2e3 100%);
+  --glass:rgba(226,236,251,.96); --glass-brd:rgba(25,81,252,.24); --ring:0 0 0 1px rgba(25,81,252,.26);
+  --accent-soft:rgba(25,81,252,.18);
+  --success:#0f766e; --success-soft:#b8ece0; --danger:#be123c; --danger-soft:#ffd0da; --warning:#b45309;
+  --map-land:#c6daf5; --map-minor:#e1ecfb; --map-water:#78b4ea; --map-park:#a0d6ae; --map-pitch:#86cc9a;
+  --map-bldg:#b0c2e3; --map-bldg-edge:#8aa1cd; --map-label:#2c3c61; --map-out:#a4bce3; --map-air:#b8cdee;
+  --map-road:#e6effc; --map-road-major:#97bff6; --map-road-edge:#8aa3d1; --pin-ring:#eef4fe;
+}}
+:root[data-theme="light"] .star,:root[data-theme="light"] .stars{color:#d97706}
+:root[data-theme="light"] .stars .off{color:#a9b9d8}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .star,:root:not([data-theme="dark"]) .stars{color:#d97706}:root:not([data-theme="dark"]) .stars .off{color:#a9b9d8}}
+.cmeta{color:var(--muted)}
+.pill.open{font-weight:800}
+/* zamonaviy ro'yxat tugmasi (select o'rnida) */
+select.selhid{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;padding:0;border:0;margin:0}
+.selbtn{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:150px;max-width:100%;height:38px;padding:0 12px 0 16px;border:0;border-radius:999px;background:var(--surface);box-shadow:var(--ring),var(--sh-1);color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:box-shadow .15s}
+.selbtn:hover{box-shadow:var(--ring),var(--sh-2)}
+.selbtn[aria-expanded="true"]{box-shadow:0 0 0 2px var(--accent),var(--sh-2)}
+.selbtn .sbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selbtn>svg.i{flex:none;width:14px;height:14px;transition:transform .2s}
+.selbtn[aria-expanded="true"]>svg.i{transform:rotate(180deg)}
+.selmenu{position:fixed;right:auto;z-index:90;overflow:auto}
+/* yumaloq, ingichka aylantirgich (strelkasiz) */
+.selmenu::-webkit-scrollbar{width:16px}
+.selmenu::-webkit-scrollbar-track{background:transparent;margin:16px 0}
+.selmenu::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:999px;border:5px solid transparent;background-clip:content-box;min-height:48px}
+.selmenu::-webkit-scrollbar-thumb:hover{background:var(--accent);background-clip:content-box}
+.selmenu::-webkit-scrollbar-button{display:none;width:0;height:0}
+/* bir xil yumaloq aylantirgich: chap panel va viloyat tanlash paneli */
+.panel::-webkit-scrollbar,.regpick::-webkit-scrollbar{width:16px}
+.panel::-webkit-scrollbar-track,.regpick::-webkit-scrollbar-track{background:transparent;margin:18px 0}
+.panel::-webkit-scrollbar-thumb,.regpick::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:999px;border:5px solid transparent;background-clip:content-box;min-height:48px}
+.panel::-webkit-scrollbar-thumb:hover,.regpick::-webkit-scrollbar-thumb:hover{background:var(--accent);background-clip:content-box}
+.panel::-webkit-scrollbar-button,.regpick::-webkit-scrollbar-button{display:none;width:0;height:0}
+@supports not selector(::-webkit-scrollbar){.selmenu,.panel,.regpick{scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}}
+.selmenu li .ln{white-space:nowrap}
+@media (max-width:520px){.top{gap:8px}.brand small{display:none}.langsel{max-width:108px;padding:0 8px}#themeBtn{padding:0 12px}}
+@media (prefers-reduced-motion:reduce){#viewDetail:not([hidden]),#viewList:not([hidden]){animation:none}}
+/* ===== Rasmni bosganda butun ekranga ochish (lightbox) ===== */
+.gallery figure{cursor:zoom-in}
+.gallery figure .credit{cursor:pointer}
+html.lb-open,html.lb-open body{overflow:hidden}
+.lightbox{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(2,6,20,.95);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lightbox[hidden]{display:none}
+.lb-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:max(56px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(40px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));cursor:zoom-out}
+.lb-stage img{display:block;width:100%;height:100%;object-fit:contain;cursor:default}
+.lb-stage svg{display:block;width:100%;height:auto;max-height:100%;aspect-ratio:16/9;border-radius:12px;cursor:default}
+.lb-x,.lb-n{position:absolute;z-index:2;display:grid;place-items:center;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:400 28px/1 system-ui,sans-serif;cursor:pointer;transition:background .15s}
+.lb-x:hover,.lb-n:hover{background:rgba(255,255,255,.28)}
+.lb-x:focus-visible,.lb-n:focus-visible{outline:3px solid #6db4ff;outline-offset:2px}
+.lb-x{top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:44px;height:44px;font-size:32px}
+.lb-n{top:50%;transform:translateY(-50%);width:48px;height:48px;font-size:34px}
+.lb-n[hidden]{display:none}
+.lb-prev{left:max(12px,env(safe-area-inset-left,0px))}
+.lb-next{right:max(12px,env(safe-area-inset-right,0px))}
+.lb-cnt{position:absolute;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom,0px));text-align:center;color:#dbe6fb;font:600 13px system-ui,sans-serif;pointer-events:none}
+@media (max-width:640px){.lb-n{width:40px;height:40px;font-size:28px}}
+
+

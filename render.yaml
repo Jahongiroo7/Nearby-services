@@ -1,15 +1,16 @@
 services:
   - type: web
-    name: yaqin-xizmatlar
+    name: nearby-services
     runtime: node
     plan: free
-    buildCommand: npm ci --omit=dev
+    buildCommand: npm ci --omit=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 22
-      # Render o'zi tasodifiy token yaratadi (Dashboard → Environment da ko'rasiz).
+      # Render o'zi tasodifiy token yaratadi (Dashboard → Environment da ko'rasiz)
       - key: ADMIN_TOKEN
         generateValue: true
+      # Doimiy saqlash uchun pulli Disk ulang va DATA_DIR=/var/data qo'ying (aks holda qayta deploy'da sharhlar o'chadi)
